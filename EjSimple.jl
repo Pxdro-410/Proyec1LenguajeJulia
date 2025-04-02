@@ -63,19 +63,21 @@ end
 
 # 7. Ejemplo matemático que muestra velocidad de análisis de datos
 function velocidadDeAnalisis()
-    datos = rand(10^6)  # Un millón de datos aleatorios
-    println("la media es: ", mean(datos))
-    println("su desVest es: ", std(datos))
+    datos = rand(10^6)  # genera un millón de datos de manera aleatoria 
+    println("la media es: ", mean(datos)) # calcula la media del numero generado
+    println("su desVest es: ", std(datos)) # calcula la desviacion estandar del numero 
 end
 
-# Llamadas de prueba
-println("Ejemplo de bucle for:")
-mostrarNumeros(5)
+# Prueba de las funcioanlidades
+# mostrar la funcionalidad de la repeticion
+println("Funcioamiento del bucle for:")
+mostrarNumeros(7)
 
-println("\nEjemplo de condicional:")
-comprobarNumero(-3)
+
+println("\nEjemplo de las condicionales:")
+comprobarNumero(-5)
 comprobarNumero(0)
-comprobarNumero(7)
+comprobarNumero(5)
 
 println("\nEjemplo de dispatch múltiple:")
 #tipo_dato(42)
