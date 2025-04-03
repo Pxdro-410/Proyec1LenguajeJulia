@@ -8,6 +8,7 @@
 using Base.Threads
 using Distributed
 using Statistics
+using GLM, DataFrames
 
 # 1. Ejemplo de una repetición, en este caso se muestra un for
 function mostrarNumeros(n)
@@ -29,15 +30,15 @@ end
 
 # 3. Ejemplo de una funcion utilizando dispatch múltiple
 # Julia utilizara el la funcion adecuada segun el valor que tome X
-function tipo_dato(x::Int) # se especifica el tipo de dato entero
+function datoX(x::Int) # se especifica el tipo de dato entero
     println("Es un entero")
 end
 
-function tipo_dato(x::Float64) # se especifica el tiop te dato flotante
+function datoX(x::Float64) # se especifica el tiop te dato flotante
     println("Es un número de punto flotante")
 end
 
-function tipo_dato(x::String) # se especifica el tipo de dato String
+function datoX(x::String) # se especifica el tipo de dato String
     println("Es un texto")
 end
 
@@ -68,30 +69,48 @@ function velocidadDeAnalisis()
     println("su desVest es: ", std(datos)) # calcula la desviacion estandar del numero 
 end
 
+# 8. Ejemplo estadistico utilizando un modelo lineal
+# Datos de ejemplo siendo X: variable independiente y Y: variable dependiente
+dif = DataFrame(X = [1, 2, 3, 4, 5], Y = [2, 4.1, 6.2, 8.1, 10.3])
+
+# se crea un modelo de regresión lineal con la forma Y = a + b*X
+regLineal = lm(@formula(Y ~ X), dif)
+
+# -----------------------------------------------------------------------------------------------------------
 # Prueba de las funcioanlidades
+
 # mostrar la funcionalidad de la repeticion
 println("Funcioamiento del bucle for:")
 mostrarNumeros(7)
 
-
+# mostrar la funcioañodad de las condiciones:
 println("\nEjemplo de las condicionales:")
 comprobarNumero(-5)
-comprobarNumero(0)
-comprobarNumero(5)
+#comprobarNumero(0)
+#comprobarNumero(5)
 
+#Ejemplo de la eleccion de Julia utilizando el dispatch 
 println("\nEjemplo de dispatch múltiple:")
-#tipo_dato(42)
-tipo_dato(3.14)
-#tipo_dato("Hola")
+#datoX(30)
+datoX(2.11)
+#datoX("HolaMundo")
 
+# Ejemplo de una funcion matematica
 println("\nEjemplo de función cuadrática:")
-println("f(3) = ", f(3))
+println("Para F(4): ", f(4))
 
-println("\nEjemplo de paralelización con Threads:")
-println("Suma paralela: ", sumaEnParalelo(100))
+# Ejemplo de la paralelizacion simple con threads y distributed
+println("\nEjemplo de paralelizacion simple utilizando Threads:")
+println("La suma en paralelo es: ", sumaEnParalelo(150))
 
-println("\nEjemplo de paralelización con Distributed:")
-println("Suma distribuida: ", sumaConDistribucion(100))
+println("\nEjemplo de paralelizacion simple utilizando Distributed:")
+println("La suma distribuida es: ", sumaConDistribucion(150))
 
-println("\nEjemplo de análisis de datos:")
+# Ejemplo de velocidad de Julia
+println("\nEjemplo de velocidad en el analisis de datos:")
 velocidadDeAnalisis()
+
+# Mostrar resultados
+println("\nCoeficientes: ", coef(regLineal))  # Muestra el intercepto y la pendiente
+println("Resumen del modelo: ")
+display(regLineal)
