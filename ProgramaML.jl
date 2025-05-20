@@ -13,8 +13,8 @@ using Plots
 const g = 9.81
 
 # Función para generar datos de alcance de proyectiles
-function generar_datos(n)
-    X = zeros(2, n) # Filas: velocidad y ángulo; Columnas: muestras
+function datosProyectil(n)
+    X = zeros(2, n) # las filas son la velocidad y ángulo y las columnas son las muestras
     Y = zeros(n) # Vector con los alcances correspondientes
     for i in 1:n
         v = rand(10.0:0.5:50.0) # genera veelocidad aleatoria entre 10 y 50 m/s
@@ -27,49 +27,49 @@ function generar_datos(n)
 end
 
 # Generar conjunto para entrenamiento del Machine Learning de 1000 ejemplos o muestras
-X, Y = generar_datos(1000)
+X, Y = datosProyectil(1000)
 
 # Estructura de la red neuronal
 modelo = Chain(
-    Dense(2, 16, relu), # Capa de entrada 2 neuronas (velocidad, ángulo)
-    Dense(16, 8, relu), # capas ocultas 16 y 8 neuronas con activación ReLU
-    Dense(8, 1) # Capa de salida: 1 neurona (alcance estimado)
+    Dense(2, 32, relu), # Capa de entrada 2 neuronas, la vel y angulo
+    Dense(32, 16, relu), # capas ocultas 16 y 8 neuronas 
+    Dense(16, 1) # Capa de salida: 1 neurona (alcance estimado)
 )
 
 # error cuadrático medio entre predicción y valor real
 loss(m, x, y) = Flux.Losses.mse(m(x), y)
 
 # Optimizador moderno (usando Optimisers.jl)
-opt = Flux.setup(Flux.Adam(0.01), modelo)
+optimizacion = Flux.setup(Flux.Adam(0.01), modelo)
 
 # Entrenamiento de la red neuronal 
 for epoch in 1:300
     grads = Flux.gradient(modelo) do m
         loss(m, X, Y')  # Y' para usar como columna  en una matriz 1×n
     end
-    Flux.update!(opt, modelo, grads) # Actualiza parámetros 
+    Flux.update!(optimizacion, modelo, grads) # Actualiza parámetros 
     if epoch % 50 == 0
         println("Epoch $epoch - Loss: ", loss(modelo, X, Y'))
     end
 end
 
 # funcion para graficar la trayectoria vs la prediccion del ML
-function mostrar_trayectoria_vs_prediccion(modelo, v::Float64, θ_deg::Float64; g::Float64 = 9.81)
+function mostrar_trayectoria_vs_prediccion(modelo, v::Float64, θ_deg::Float64; g::Float64 = 9.81) 
     θ = deg2rad(θ_deg)
 
     # Tiempo total estimado con datos físicos
-    t_total = 2 * v * sin(θ) / g
-    ts = range(0, t_total, length=200)
+    tiempoTotal = 2 * v * sin(θ) / g
+    ts = range(0, tiempoTotal, length=200)
 
     # Coordenadas reales de la trayectoria
-    x_real = v * cos(θ) .* ts
-    y_real = v * sin(θ) .* ts .- 0.5 * g .* ts.^2
+    XReal = v * cos(θ) .* ts
+    YReal = v * sin(θ) .* ts .- 0.5 * g .* ts.^2
 
     # Predicción del alcance por el modelo
-    alcance_predicho = modelo([v, θ])[1]
+    prediccionAlcance = modelo([v, θ])[1]
 
     # Graficar trayectoria
-    plot(x_real, y_real,
+    plot(XReal, YReal,
         xlabel="Distancia horizontal (m)",
         ylabel="Altura (m)",
         title="Trayectoria real vs predicción ML",
@@ -78,15 +78,15 @@ function mostrar_trayectoria_vs_prediccion(modelo, v::Float64, θ_deg::Float64; 
         legend=:topright)
 
     # alcance predicho
-    scatter!([alcance_predicho], [0.0], 
+    scatter!([prediccionAlcance], [0.0], 
         label="Alcance predicho por ML", 
         color=:red, 
         markersize=6, 
         marker=:circle)
 
     # alcance real 
-    alcance_real = v^2 * sin(2θ) / g
-    scatter!([alcance_real], [0.0], 
+    AlcanceReal = v^2 * sin(2θ) / g
+    scatter!([AlcanceReal], [0.0], 
         label="Alcance real",
         color=:green,
         markersize=6,
@@ -94,6 +94,6 @@ function mostrar_trayectoria_vs_prediccion(modelo, v::Float64, θ_deg::Float64; 
 end
 
 # Prueba del modelo con una velocidad de 30 m/s y ángulo de 45 grados
-v_test = 30.0
-θ_test_deg = 45.0 
-mostrar_trayectoria_vs_prediccion(modelo, v_test, θ_test_deg)
+velocidadInicial = 30.0
+anguloInicial = 45.0 
+mostrar_trayectoria_vs_prediccion(modelo, velocidadInicial, anguloInicial)
